@@ -1,0 +1,34 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Go
+bin/
+tmp/
+coverage.out
+vendor/
+
+# Node / React
+web/node_modules/
+web/dist/
+web/.vite/
+web/coverage/
+
+# Generated protobuf artifacts
+internal/pb/
+
+# Local data
+.data/
+tmp/

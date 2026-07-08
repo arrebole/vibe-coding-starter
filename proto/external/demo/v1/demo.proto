@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package external.demo.v1;
+
+option go_package = "github.com/arrebole/vibe-coding-starter/proto/external/demo/v1;demov1";
+
+// DemoService 表示一个外部 gRPC 服务示例。
+// 当前项目只消费外部 gRPC 接口，不提供 gRPC server。
+service DemoService {
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+  string name = 1;
+}
+
+message PingResponse {
+  string message = 1;
+}
