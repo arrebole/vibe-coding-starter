@@ -15,7 +15,7 @@
 .
 ├── cmd/server                 # HTTP 服务入口
 ├── internal
-│   ├── cache                  # Redis 与业务缓存封装
+│   ├── cache                  # Redis client 基础封装
 │   ├── config                 # 环境变量配置
 │   ├── database               # PostgreSQL 初始化
 │   ├── grpcclient             # 出站 gRPC 客户端封装
@@ -37,13 +37,13 @@
 
 ## 本地启动
 
-先准备 PostgreSQL 和 Redis，然后复制环境变量：
+先准备 PostgreSQL，然后复制环境变量。Redis 是可用基础设施，只有某个功能明确需要缓存时才接入。
 
 ```bash
 cp .env.example .env
 ```
 
-按本机情况修改 `.env` 中的 `DATABASE_DSN`、`REDIS_ADDR`。
+按本机情况修改 `.env` 中的 `DATABASE_DSN`。如果后续功能明确使用 Redis，再配置 `REDIS_ADDR`。
 
 初始化数据库表结构：
 
@@ -100,4 +100,5 @@ make web-build  # 前端构建
 - HTTP 入参放在 `request`，出参放在 `dto`，数据库实体放在 `entity`。
 - `handler` 不写数据库查询，`repository` 不读取 Gin context，`entity` 不直接返回给前端。
 - 新增或修改数据库字段时同步更新 `sql/schema.sql`，每个字段都要有注释。
+- 不要默认给 CRUD 加 Redis 缓存，只有功能明确要求缓存时才接入。
 - 本服务不提供 gRPC server，只调用其他服务的 gRPC 接口。

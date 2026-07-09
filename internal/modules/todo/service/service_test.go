@@ -14,8 +14,7 @@ import (
 
 func TestCreateTodoTrimsTitleAndClearsCache(t *testing.T) {
 	repo := &fakeRepository{}
-	cache := &fakeTodoCache{}
-	svc := New(repo, cache, fakeDemoClient{}, slog.Default())
+	svc := New(repo, fakeDemoClient{}, slog.Default())
 
 	todo, err := svc.Create(context.Background(), dto.CreateTodoInput{Title: "  写模板  "})
 	if err != nil {
@@ -28,13 +27,10 @@ func TestCreateTodoTrimsTitleAndClearsCache(t *testing.T) {
 	if repo.created == nil {
 		t.Fatal("expected repository Create to be called")
 	}
-	if !cache.deleted {
-		t.Fatal("expected list cache to be cleared")
-	}
 }
 
 func TestCreateTodoRejectsBlankTitle(t *testing.T) {
-	svc := New(&fakeRepository{}, nil, nil, slog.Default())
+	svc := New(&fakeRepository{}, nil, slog.Default())
 
 	_, err := svc.Create(context.Background(), dto.CreateTodoInput{Title: "   "})
 	if err != ErrInvalidTitle {
@@ -42,21 +38,19 @@ func TestCreateTodoRejectsBlankTitle(t *testing.T) {
 	}
 }
 
-func TestListTodoUsesCache(t *testing.T) {
-	expected := []dto.TodoResponse{{ID: 1, Title: "缓存任务"}}
+func TestListTodoUsesRepository(t *testing.T) {
 	repo := &fakeRepository{}
-	cache := &fakeTodoCache{cached: expected, hit: true}
-	svc := New(repo, cache, nil, slog.Default())
+	svc := New(repo, nil, slog.Default())
 
 	todos, err := svc.List(context.Background(), 10)
 	if err != nil {
 		t.Fatalf("List() error = %v", err)
 	}
-	if len(todos) != 1 || todos[0].Title != expected[0].Title {
-		t.Fatalf("List() = %#v, want %#v", todos, expected)
+	if len(todos) != 1 || todos[0].Title != "数据库任务" {
+		t.Fatalf("List() = %#v", todos)
 	}
-	if repo.listCalled {
-		t.Fatal("expected repository not to be called when cache hits")
+	if !repo.listCalled {
+		t.Fatal("expected repository to be called")
 	}
 }
 
@@ -87,25 +81,6 @@ func (r *fakeRepository) Update(context.Context, *entity.Todo) error {
 }
 
 func (r *fakeRepository) Delete(context.Context, uint) error {
-	return nil
-}
-
-type fakeTodoCache struct {
-	cached  []dto.TodoResponse
-	hit     bool
-	deleted bool
-}
-
-func (c *fakeTodoCache) GetList(context.Context) ([]dto.TodoResponse, bool, error) {
-	return c.cached, c.hit, nil
-}
-
-func (c *fakeTodoCache) SetList(context.Context, []dto.TodoResponse) error {
-	return nil
-}
-
-func (c *fakeTodoCache) DeleteList(context.Context) error {
-	c.deleted = true
 	return nil
 }
 

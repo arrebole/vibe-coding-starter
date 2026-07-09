@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
 	todohandler "github.com/arrebole/vibe-coding-starter/internal/modules/todo/handler"
@@ -13,7 +12,6 @@ import (
 
 type Dependencies struct {
 	DB          *gorm.DB
-	Redis       *redis.Client
 	TodoHandler *todohandler.Handler
 }
 

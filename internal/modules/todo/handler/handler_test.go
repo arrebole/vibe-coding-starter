@@ -20,7 +20,7 @@ import (
 func TestCreateTodo(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	engine := gin.New()
-	h := New(service.New(&handlerFakeRepository{}, nil, nil, slog.Default()))
+	h := New(service.New(&handlerFakeRepository{}, nil, slog.Default()))
 	group := engine.Group("/api/v1")
 	h.RegisterRoutes(group)
 
@@ -50,7 +50,7 @@ func TestCreateTodo(t *testing.T) {
 func TestCreateTodoRejectsInvalidBody(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	engine := gin.New()
-	h := New(service.New(&handlerFakeRepository{}, nil, nil, slog.Default()))
+	h := New(service.New(&handlerFakeRepository{}, nil, slog.Default()))
 	group := engine.Group("/api/v1")
 	h.RegisterRoutes(group)
 

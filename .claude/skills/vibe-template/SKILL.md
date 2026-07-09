@@ -15,7 +15,7 @@
 3. `request` 只写 HTTP 入参结构和基础 bind 校验。
 4. `dto` 写 Service 输入输出、API 响应结构和转换函数。
 5. `repository` 只访问数据库。
-6. `service` 编排业务逻辑、缓存和外部 gRPC client。
+6. `service` 编排业务逻辑和外部 gRPC client；只有功能明确要求缓存时才接入 Redis。
 7. `handler` 只做 Gin 参数绑定、错误转换和响应。
 8. 在 `internal/router` 注册路由，在 `cmd/server/main.go` 注入依赖。
 9. 如果模块需要新增或修改数据库表结构，必须同步维护 `sql/schema.sql`。
@@ -37,6 +37,14 @@
 4. 每张表应使用 `COMMENT ON TABLE` 写明用途。
 5. 不要依赖 GORM `AutoMigrate` 自动建表。
 6. 修改 `entity` 字段时必须同步更新 `sql/schema.sql`。
+
+## Redis 缓存
+
+1. 不要默认给 CRUD 或示例功能添加 Redis 缓存。
+2. 只有用户明确指定某个功能需要缓存时才接入 Redis。
+3. 接入缓存前必须明确缓存 key、TTL、命中范围和失效策略。
+4. 缓存读写只能放在 service 层或 service 调用的专用缓存封装中。
+5. handler 和 repository 不要直接读写 Redis。
 
 ## 新增外部 gRPC client
 

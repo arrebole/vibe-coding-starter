@@ -22,7 +22,6 @@ type RedisConfig struct {
 	Addr     string
 	Password string
 	DB       int
-	TodoTTL  time.Duration
 }
 
 type GRPCClientConfig struct {
@@ -42,7 +41,6 @@ func MustLoad() Config {
 			Addr:     getEnv("REDIS_ADDR", "localhost:6379"),
 			Password: getEnv("REDIS_PASSWORD", ""),
 			DB:       getEnvInt("REDIS_DB", 0),
-			TodoTTL:  time.Duration(getEnvInt("REDIS_TODO_TTL_SECONDS", 60)) * time.Second,
 		},
 		ExternalDemoGRPC: GRPCClientConfig{
 			Addr:    getEnv("EXTERNAL_DEMO_GRPC_ADDR", ""),

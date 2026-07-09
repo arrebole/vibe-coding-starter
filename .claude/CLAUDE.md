@@ -31,6 +31,8 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 - 数据库表结构统一维护在 `sql/schema.sql`，新增或修改字段时必须同步更新。
 - `sql/schema.sql` 只存放建表语句、索引和注释，每个字段都必须有 `COMMENT ON COLUMN`。
 - 后端启动不要使用 GORM `AutoMigrate` 自动建表。
+- 不要默认给 CRUD 或示例功能添加 Redis 缓存；只有用户明确指定某个功能需要缓存时才接入。
+- 接入 Redis 缓存前必须明确缓存 key、TTL、命中范围和失效策略。
 - 本服务只调用其他服务的 gRPC 接口，不提供 gRPC server。
 - 不要新增 gRPC 监听端口、server 注册或 grpc-gateway。
 - proto 生成命令统一维护在 `Makefile` 的 `proto` 目标中。

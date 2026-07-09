@@ -11,9 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 
-	"github.com/arrebole/vibe-coding-starter/internal/cache"
 	"github.com/arrebole/vibe-coding-starter/internal/config"
 	"github.com/arrebole/vibe-coding-starter/internal/database"
 	"github.com/arrebole/vibe-coding-starter/internal/grpcclient"
@@ -34,20 +32,15 @@ func main() {
 
 	db := database.MustOpen(cfg.DatabaseDSN)
 
-	redisClient := cache.NewRedisClient(cfg.Redis)
-	defer closeRedis(log, redisClient)
-
 	demoClient := grpcclient.NewDemoClient(cfg.ExternalDemoGRPC, log)
 	defer demoClient.Close()
 
 	todoRepository := todorepository.NewGormRepository(db)
-	todoCache := cache.NewTodoCache(redisClient, cfg.Redis.TodoTTL)
-	todoService := todoservice.New(todoRepository, todoCache, demoClient, log)
+	todoService := todoservice.New(todoRepository, demoClient, log)
 	todoHandler := todohandler.New(todoService)
 
 	engine := router.New(router.Dependencies{
 		DB:          db,
-		Redis:       redisClient,
 		TodoHandler: todoHandler,
 	})
 
@@ -66,12 +59,6 @@ func main() {
 	}()
 
 	waitForShutdown(log, server)
-}
-
-func closeRedis(log *slog.Logger, client *redis.Client) {
-	if err := client.Close(); err != nil {
-		log.Warn("关闭 Redis 连接失败", slog.Any("error", err))
-	}
 }
 
 func waitForShutdown(log *slog.Logger, server *http.Server) {

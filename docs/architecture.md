@@ -22,7 +22,7 @@
 
 ### service
 
-`service` 是业务逻辑层，负责业务校验、编排 repository、Redis 缓存和外部 gRPC client。Service 不依赖 Gin，也不直接拼 HTTP 响应。
+`service` 是业务逻辑层，负责业务校验、编排 repository 和外部 gRPC client。只有某个功能被明确指定需要缓存时，service 才能接入 Redis 缓存。Service 不依赖 Gin，也不直接拼 HTTP 响应。
 
 ### handler
 
@@ -32,11 +32,13 @@
 
 ```text
 handler -> service -> repository -> entity
-                 └-> cache
+                 └-> cache（仅在功能明确需要缓存时）
                  └-> grpcclient
 ```
 
 禁止反向依赖，也禁止跨层直接调用。例如 handler 不能直接调用 repository，repository 不能调用 grpcclient。
+
+Redis 缓存不是默认分层要求。不要为了展示技术栈而给普通 CRUD 默认加缓存，只有需求明确指定缓存场景、缓存 key、过期时间和失效策略时才接入。
 
 ## 模块间调用
 
@@ -86,6 +88,15 @@ orderService := orderservice.New(orderRepository, userService)
 - 生成命令统一使用 `make proto`。
 - 出站连接、超时、日志 interceptor 放在 `internal/grpcclient`。
 - 业务模块只能在 service 层调用 gRPC client。
+
+## Redis 缓存约定
+
+Redis 是项目可用的基础设施，但不是每个功能的默认依赖。
+
+- 只有功能明确要求缓存时才接入 Redis。
+- 接入缓存前必须明确缓存 key、TTL、命中范围和失效策略。
+- 不要在 handler 或 repository 中读写 Redis。
+- 普通 CRUD 示例默认不使用 Redis 缓存。
 
 ## 数据库 DDL 维护
 
