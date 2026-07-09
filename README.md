@@ -30,6 +30,7 @@
 │   ├── response               # 统一 HTTP 响应
 │   └── router                 # 路由注册
 ├── proto/external             # 外部 gRPC 服务 proto
+├── sql/schema.sql             # 数据库 DDL 权威来源
 ├── docs                       # 中文架构文档
 └── web                        # React 前端项目
 ```
@@ -43,6 +44,14 @@ cp .env.example .env
 ```
 
 按本机情况修改 `.env` 中的 `DATABASE_DSN`、`REDIS_ADDR`。
+
+初始化数据库表结构：
+
+```bash
+psql "$DATABASE_DSN" -f sql/schema.sql
+```
+
+本项目不在服务启动时执行 GORM `AutoMigrate`。数据库表、索引和字段注释统一维护在 `sql/schema.sql`。
 
 启动后端：
 
@@ -90,4 +99,5 @@ make web-build  # 前端构建
 - 新业务优先创建 `internal/modules/<module>`。
 - HTTP 入参放在 `request`，出参放在 `dto`，数据库实体放在 `entity`。
 - `handler` 不写数据库查询，`repository` 不读取 Gin context，`entity` 不直接返回给前端。
+- 新增或修改数据库字段时同步更新 `sql/schema.sql`，每个字段都要有注释。
 - 本服务不提供 gRPC server，只调用其他服务的 gRPC 接口。

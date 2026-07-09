@@ -87,6 +87,16 @@ orderService := orderservice.New(orderRepository, userService)
 - 出站连接、超时、日志 interceptor 放在 `internal/grpcclient`。
 - 业务模块只能在 service 层调用 gRPC client。
 
+## 数据库 DDL 维护
+
+数据库表结构的权威来源是 `sql/schema.sql`。该文件只存放表的创建语句、索引和注释，不存放测试数据、初始化业务数据或环境配置。
+
+- 新增表、字段或索引时，必须同步更新 `sql/schema.sql`。
+- 每个字段必须使用 `COMMENT ON COLUMN` 写明含义。
+- 每张表应使用 `COMMENT ON TABLE` 写明用途。
+- 后端启动不使用 GORM `AutoMigrate` 自动建表。
+- `entity` 必须与 `sql/schema.sql` 保持一致，但不能替代 DDL。
+
 ## 新增业务模块
 
 新增模块时复制 Todo 的结构：

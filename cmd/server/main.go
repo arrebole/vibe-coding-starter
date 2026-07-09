@@ -12,14 +12,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 
 	"github.com/arrebole/vibe-coding-starter/internal/cache"
 	"github.com/arrebole/vibe-coding-starter/internal/config"
 	"github.com/arrebole/vibe-coding-starter/internal/database"
 	"github.com/arrebole/vibe-coding-starter/internal/grpcclient"
 	"github.com/arrebole/vibe-coding-starter/internal/logger"
-	"github.com/arrebole/vibe-coding-starter/internal/modules/todo/entity"
 	todohandler "github.com/arrebole/vibe-coding-starter/internal/modules/todo/handler"
 	todorepository "github.com/arrebole/vibe-coding-starter/internal/modules/todo/repository"
 	todoservice "github.com/arrebole/vibe-coding-starter/internal/modules/todo/service"
@@ -35,7 +33,6 @@ func main() {
 	}
 
 	db := database.MustOpen(cfg.DatabaseDSN)
-	mustAutoMigrate(db)
 
 	redisClient := cache.NewRedisClient(cfg.Redis)
 	defer closeRedis(log, redisClient)
@@ -69,12 +66,6 @@ func main() {
 	}()
 
 	waitForShutdown(log, server)
-}
-
-func mustAutoMigrate(db *gorm.DB) {
-	if err := db.AutoMigrate(&entity.Todo{}); err != nil {
-		panic(err)
-	}
 }
 
 func closeRedis(log *slog.Logger, client *redis.Client) {

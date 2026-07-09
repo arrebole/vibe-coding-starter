@@ -18,6 +18,7 @@
 6. `service` 编排业务逻辑、缓存和外部 gRPC client。
 7. `handler` 只做 Gin 参数绑定、错误转换和响应。
 8. 在 `internal/router` 注册路由，在 `cmd/server/main.go` 注入依赖。
+9. 如果模块需要新增或修改数据库表结构，必须同步维护 `sql/schema.sql`。
 
 ## 模块间调用
 
@@ -27,6 +28,15 @@
 4. 在 `cmd/server/main.go` 中完成依赖注入。
 5. 不要在模块内部自行初始化其他模块依赖。
 6. 不要导入其他模块的 `repository`、`entity`、`request`、`handler`。
+
+## 数据库表结构
+
+1. 数据库 DDL 统一维护在 `sql/schema.sql`。
+2. `sql/schema.sql` 只存放表创建语句、索引和注释。
+3. 每个字段必须使用 `COMMENT ON COLUMN` 写明含义。
+4. 每张表应使用 `COMMENT ON TABLE` 写明用途。
+5. 不要依赖 GORM `AutoMigrate` 自动建表。
+6. 修改 `entity` 字段时必须同步更新 `sql/schema.sql`。
 
 ## 新增外部 gRPC client
 
