@@ -17,7 +17,7 @@ type Todo = {
   updated_at: string
 }
 
-const apiBaseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([])
