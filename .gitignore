@@ -26,9 +26,6 @@ web/dist/
 web/.vite/
 web/coverage/
 
-# Generated protobuf artifacts
-internal/pb/
-
 # Local data
 .data/
 tmp/

@@ -43,7 +43,7 @@
 cp .env.example .env
 ```
 
-按本机情况修改 `.env` 中的 `DATABASE_DSN`。如果后续功能明确使用 Redis，再配置 `REDIS_ADDR`。
+按本机情况修改 `.env` 中的 `DATABASE_DSN`。如果后续功能明确使用 Redis，再配置 `REDIS_ADDR`。前端也从这份根目录 `.env` 读取 `VITE_API_BASE_URL`。
 
 初始化数据库表结构：
 
@@ -74,6 +74,8 @@ make tidy       # 整理 Go 依赖
 make proto      # 生成外部 gRPC client 代码
 make web-build  # 前端构建
 ```
+
+`proto/external` 下的 Go 生成代码会提交到版本库。修改 proto 后运行 `make proto` 并一并提交生成文件。
 
 ## API
 

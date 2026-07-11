@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/arrebole/vibe-coding-starter/internal/config"
+	demov1 "github.com/arrebole/vibe-coding-starter/proto/external/demo/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -19,9 +20,10 @@ type DemoClient interface {
 }
 
 type demoClient struct {
-	cfg  config.GRPCClientConfig
-	log  *slog.Logger
-	conn *grpc.ClientConn
+	cfg    config.GRPCClientConfig
+	log    *slog.Logger
+	conn   *grpc.ClientConn
+	client demov1.DemoServiceClient
 }
 
 func NewDemoClient(cfg config.GRPCClientConfig, log *slog.Logger) DemoClient {
@@ -39,21 +41,28 @@ func NewDemoClient(cfg config.GRPCClientConfig, log *slog.Logger) DemoClient {
 		return &demoClient{cfg: cfg, log: log}
 	}
 
-	return &demoClient{cfg: cfg, log: log, conn: conn}
+	return &demoClient{
+		cfg:    cfg,
+		log:    log,
+		conn:   conn,
+		client: demov1.NewDemoServiceClient(conn),
+	}
 }
 
 func (c *demoClient) Ping(ctx context.Context, name string) (string, error) {
-	if c.cfg.Addr == "" || c.conn == nil {
+	if c.cfg.Addr == "" || c.client == nil {
 		return "", ErrDemoClientNotConfigured
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
 	defer cancel()
 
-	// 这里保留出站 gRPC 调用入口。执行 make proto 后，可用 c.conn 创建生成的 pb client。
 	c.log.Debug("准备调用外部 demo gRPC 服务", slog.String("addr", c.cfg.Addr), slog.String("name", name))
-	_ = ctx
-	return "", ErrDemoClientNotConfigured
+	response, err := c.client.Ping(ctx, &demov1.PingRequest{Name: name})
+	if err != nil {
+		return "", err
+	}
+	return response.GetMessage(), nil
 }
 
 func (c *demoClient) Close() error {
