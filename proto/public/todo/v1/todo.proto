@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package public.todo.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/arrebole/vibe-coding-starter/proto/public/todo/v1;todov1";
+
+// TodoService 表示本服务对外提供的 Todo gRPC 服务。
+service TodoService {
+  rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
+}
+
+message ListTodosRequest {
+  int32 limit = 1;
+}
+
+message ListTodosResponse {
+  repeated Todo todos = 1;
+}
+
+message Todo {
+  uint64 id = 1;
+  string title = 2;
+  bool completed = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}

@@ -14,7 +14,7 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 
 本文件是本项目所有 AI Agent 约束的权威来源。其他 Agent 入口文件只能引用或兼容本文件，不应复制一份可能漂移的规则。
 
-本项目基于 Go + Gin + GORM + Redis + 出站 gRPC client + React + Tailwind CSS。后端位于仓库根目录，前端位于 `web/`。
+本项目基于 Go + Gin + GORM + Redis + gRPC client/server + React + Tailwind CSS。后端位于仓库根目录，前端位于 `web/`。
 
 ## 工作规则
 
@@ -33,8 +33,10 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 - 后端启动不要使用 GORM `AutoMigrate` 自动建表。
 - 不要默认给 CRUD 或示例功能添加 Redis 缓存；只有用户明确指定某个功能需要缓存时才接入。
 - 接入 Redis 缓存前必须明确缓存 key、TTL、命中范围和失效策略。
-- 本服务只调用其他服务的 gRPC 接口，不提供 gRPC server。
-- 不要新增 gRPC 监听端口、server 注册或 grpc-gateway。
+- 本服务支持调用外部 gRPC 接口，也支持对外提供 gRPC server。
+- 对外 gRPC proto 放在 `proto/public/<service>/v1`，外部依赖 proto 放在 `proto/external/<service>/v1`。
+- 对外 gRPC adapter 只能调用 service 层，不要直接访问 repository 或 entity。
+- 不要新增 grpc-gateway，除非用户明确要求。
 - proto 生成命令统一维护在 `Makefile` 的 `proto` 目标中。
 - 不要新增 `docker-compose.yml`，除非用户明确要求。
 - 项目技能统一存放在 `.claude/skills`，其他 Agent 目录不要维护技能副本。

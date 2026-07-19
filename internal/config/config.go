@@ -12,6 +12,7 @@ import (
 type Config struct {
 	AppEnv           string
 	HTTPAddr         string
+	GRPCAddr         string
 	LogLevel         string
 	DatabaseDSN      string
 	Redis            RedisConfig
@@ -35,6 +36,7 @@ func MustLoad() Config {
 	return Config{
 		AppEnv:      getEnv("APP_ENV", "local"),
 		HTTPAddr:    getEnv("HTTP_ADDR", ":8080"),
+		GRPCAddr:    getEnv("GRPC_ADDR", ":9090"),
 		LogLevel:    getEnv("LOG_LEVEL", "debug"),
 		DatabaseDSN: mustGetEnv("DATABASE_DSN"),
 		Redis: RedisConfig{

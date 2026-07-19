@@ -1,6 +1,6 @@
 # 架构说明
 
-本项目参考 NestJS 的模块化分层，但保留 Go 和 Gin 的常见命名习惯。每个业务模块放在 `internal/modules/<module>` 下，并在模块内维护完整分层。
+本项目参考 NestJS 的模块化分层，但保留 Go、Gin 和 gRPC 的常见命名习惯。每个业务模块放在 `internal/modules/<module>` 下，并在模块内维护完整分层。
 
 ## 分层职责
 
@@ -31,12 +31,12 @@
 ## 调用方向
 
 ```text
-handler -> service -> repository -> entity
-                 └-> cache（仅在功能明确需要缓存时）
-                 └-> grpcclient
+handler/grpchandler -> service -> repository -> entity
+                            └-> cache（仅在功能明确需要缓存时）
+                            └-> grpcclient
 ```
 
-禁止反向依赖，也禁止跨层直接调用。例如 handler 不能直接调用 repository，repository 不能调用 grpcclient。
+禁止反向依赖，也禁止跨层直接调用。例如 handler 和 grpchandler 不能直接调用 repository，repository 不能调用 grpcclient。
 
 Redis 缓存不是默认分层要求。不要为了展示技术栈而给普通 CRUD 默认加缓存，只有需求明确指定缓存场景、缓存 key、过期时间和失效策略时才接入。
 
@@ -82,12 +82,16 @@ orderService := orderservice.New(orderRepository, userService)
 
 ## gRPC 约定
 
-本服务只消费其他服务的 gRPC 接口，不提供 gRPC server。
+本服务支持消费其他服务的 gRPC 接口，也支持对外提供 gRPC server。
 
 - 外部 proto 放在 `proto/external/<service>/v1`。
+- 对外 proto 放在 `proto/public/<service>/v1`。
 - 生成命令统一使用 `make proto`。
 - 出站连接、超时、日志 interceptor 放在 `internal/grpcclient`。
+- 入站 gRPC server、服务注册和日志 interceptor 放在 `internal/grpcserver`。
 - 业务模块只能在 service 层调用 gRPC client。
+- 对外 gRPC adapter 只能负责 proto 与 service DTO 转换，不写数据库查询和业务规则。
+- 不新增 grpc-gateway，除非需求明确要求同时提供 HTTP 转码。
 
 ## Redis 缓存约定
 
