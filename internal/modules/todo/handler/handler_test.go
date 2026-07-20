@@ -22,7 +22,7 @@ func TestCreateTodo(t *testing.T) {
 	engine := gin.New()
 	h := New(service.New(&handlerFakeRepository{}, nil, slog.Default()))
 	group := engine.Group("/api/v1")
-	h.RegisterRoutes(group)
+	h.Register(group)
 
 	body := bytes.NewBufferString(`{"title":"写测试"}`)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/todos", body)
@@ -52,7 +52,7 @@ func TestCreateTodoRejectsInvalidBody(t *testing.T) {
 	engine := gin.New()
 	h := New(service.New(&handlerFakeRepository{}, nil, slog.Default()))
 	group := engine.Group("/api/v1")
-	h.RegisterRoutes(group)
+	h.Register(group)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/todos", bytes.NewBufferString(`{}`))
 	req.Header.Set("Content-Type", "application/json")

@@ -24,7 +24,7 @@ func New(deps Dependencies) *gin.Engine {
 	})
 
 	api := engine.Group("/api/v1")
-	deps.TodoHandler.RegisterRoutes(api)
+	deps.TodoHandler.Register(api)
 
 	engine.NoRoute(func(c *gin.Context) {
 		response.Error(c, http.StatusNotFound, "接口不存在")

@@ -21,7 +21,8 @@ func New(service *service.Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) RegisterRoutes(group *gin.RouterGroup) {
+// Register 注册 todo 一级路由下的所有 HTTP 接口。
+func (h *Handler) Register(group *gin.RouterGroup) {
 	group.GET("/todos", h.List)
 	group.POST("/todos", h.Create)
 	group.PATCH("/todos/:id", h.Update)
